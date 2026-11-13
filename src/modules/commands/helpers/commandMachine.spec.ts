@@ -37,7 +37,9 @@ const fail =
   () =>
     Promise.reject(new HttpError(kind, kind, status, body))
 const hang: Step = () => new Promise(() => {})
-const tick = (ms = 0): Promise<void> => vi.advanceTimersByTimeAsync(ms)
+const tick = async (ms = 0): Promise<void> => {
+  await vi.advanceTimersByTimeAsync(ms)
+}
 
 function setup(steps: Step[]) {
   const sent: CommandIntent[] = []
