@@ -1,0 +1,1 @@
+export { default as QueuesContainer } from './containers/QueuesContainer.vue'
