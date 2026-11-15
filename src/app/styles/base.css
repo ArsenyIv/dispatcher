@@ -1,0 +1,119 @@
+:root {
+  color-scheme: light;
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --surface-muted: #f0eee6;
+  --text: #141413;
+  --text-muted: #5e5d59;
+  --border: #e8e6dc;
+  --border-strong: #b0aea5;
+  --accent: #c6613f;
+  --accent-hover: #b5532f;
+  --ok: #5a6e3f;
+  --warn: #946200;
+  --danger: #b3372d;
+  --expired: #6b4c8a;
+  --radius: 8px;
+  --gap: 1rem;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
+ul {
+  padding: 0;
+  list-style: none;
+}
+h1 {
+  min-width: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+button {
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover:not(:disabled) {
+  border-color: var(--text);
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.btn-accent {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+.btn-accent:hover:not(:disabled) {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.muted {
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .panel {
+    padding: 0.75rem;
+  }
+}

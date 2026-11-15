@@ -104,47 +104,15 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<template>
-  <div class="map">
-    <div ref="frame" class="map__frame">
-      <canvas
-        ref="canvas"
-        class="map__canvas"
-        role="img"
-        aria-label="Схема площадки: пункты и машины"
-        @click="onClick"
-      ></canvas>
-    </div>
-
-    <ul class="legend" aria-label="Обозначения">
-      <li v-for="state in VEHICLE_STATES" :key="state" class="legend__item">
-        <span class="legend__dot" :style="{ background: STATE_COLORS[state] }"></span>
-        {{ STATE_LABELS[state] }}
-      </li>
-      <li class="legend__item"><span class="legend__ring"></span>Данные устарели</li>
-      <li class="legend__item"><span class="legend__square legend__square--auto"></span>Пункт, авто</li>
-      <li class="legend__item"><span class="legend__square legend__square--manual"></span>Пункт, ручной</li>
-      <li class="legend__item">Сетка: 1 км</li>
-    </ul>
-
-    <p v-if="selectedInfo" class="map__info">
-      <strong>{{ selectedInfo.name }}</strong>
-      · {{ selectedInfo.stateLabel }} · {{ selectedInfo.speedKmh }} км/ч · пункт: {{ selectedInfo.pointName }} ·
-      данные от {{ selectedInfo.lastSeen }}
-      <span v-if="selectedInfo.stale" class="map__stale">· данные устарели</span>
-    </p>
-    <p v-else class="map__hint">Нажмите на машину, чтобы увидеть подробности</p>
-  </div>
-</template>
-
 <style scoped>
 .map__frame {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 2;
-  border: 1px solid #c9c9c9;
-  border-radius: 6px;
   overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-muted);
 }
 .map__canvas {
   display: block;
@@ -156,9 +124,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1rem;
-  padding: 0;
-  margin: 0.5rem 0;
-  list-style: none;
+  margin: 0.75rem 0 0;
   font-size: 0.875rem;
 }
 .legend__item {
@@ -174,26 +140,27 @@ onBeforeUnmount(() => {
 .legend__ring {
   width: 0.7rem;
   height: 0.7rem;
-  border: 2px solid #57606a;
+  border: 2px solid var(--text-muted);
   border-radius: 50%;
 }
 .legend__square {
   width: 0.7rem;
   height: 0.7rem;
-  box-sizing: border-box;
-  border: 2px solid #1f2328;
+  border: 2px solid var(--text);
 }
 .legend__square--auto {
-  background: #1f2328;
+  background: var(--text);
 }
 .map__info,
 .map__hint {
-  margin: 0.25rem 0;
+  min-height: 2.9em;
+  margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
 }
 .map__hint {
-  color: #57606a;
+  color: var(--text-muted);
 }
 .map__stale {
-  color: #cf222e;
+  color: var(--danger);
 }
 </style>

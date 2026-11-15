@@ -23,21 +23,18 @@ defineEmits<{
 </script>
 
 <template>
-  <section
-    class="point"
-    :data-point-id="pointId"
-    :data-mode="mode"
-    :data-version="version"
-  >
+  <section class="point" :data-point-id="pointId" :data-mode="mode" :data-version="version">
     <header class="point__head">
       <h3 class="point__name">{{ name }}</h3>
-      <span class="point__mode">{{ mode === 'auto' ? 'Автоматический режим' : 'Ручной режим' }}</span>
       <ModeToggle
         v-if="canAct"
         :mode="mode"
         :busy="commandStatus === 'sending' || commandStatus === 'unknown'"
         @change="(next) => $emit('setMode', pointId, next)"
       />
+      <span v-else class="point__badge" :class="`point__badge--${mode}`">
+        {{ mode === 'auto' ? 'Авто' : 'Ручной' }}
+      </span>
     </header>
 
     <div v-if="commandStatus === 'unknown' && canAct" class="point__actions">
@@ -52,72 +49,105 @@ defineEmits<{
       {{ commandMessage }}
     </p>
 
-    <p v-if="rows.length === 0" class="point__empty">Очередь пуста</p>
-    <table v-else class="point__queue">
-      <thead>
-        <tr>
-          <th scope="col">Машина</th>
-          <th scope="col">Приезд</th>
-          <th scope="col">Начало обслуживания</th>
-          <th scope="col">Ожидание</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in rows" :key="row.key">
-          <td>{{ row.vehicleName }}</td>
-          <td>{{ row.eta }}</td>
-          <td>{{ row.serviceStart }}</td>
-          <td>{{ row.wait }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <p v-if="rows.length === 0" class="point__empty muted">Очередь пуста</p>
+    <div v-else class="point__scroll">
+      <table class="point__queue">
+        <thead>
+          <tr>
+            <th scope="col">Машина</th>
+            <th scope="col">Приезд</th>
+            <th scope="col">Начало</th>
+            <th scope="col">Ожидание</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in rows" :key="row.key">
+            <td>{{ row.vehicleName }}</td>
+            <td>{{ row.eta }}</td>
+            <td>{{ row.serviceStart }}</td>
+            <td>{{ row.wait }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </template>
 
 <style scoped>
 .point {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #c9c9c9;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
   border-radius: 6px;
+  background: var(--bg);
 }
 .point__head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 .point__name {
-  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-.point__mode {
-  color: #57606a;
+.point__badge {
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}
+.point__badge--manual {
+  border-color: var(--text);
+  font-weight: 600;
 }
 .point__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
 .point__message {
-  margin: 0.25rem 0;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+.point__message--confirmed {
+  color: var(--ok);
+}
+.point__message--conflict {
+  color: var(--warn);
 }
 .point__message--forbidden,
 .point__message--failed,
 .point__message--unknown {
-  color: #cf222e;
+  color: var(--danger);
 }
 .point__empty {
-  margin: 0.5rem 0 0;
-  color: #57606a;
+  margin-top: 0.5rem;
+}
+.point__scroll {
+  margin-top: 0.5rem;
+  overflow-x: auto;
 }
 .point__queue {
   width: 100%;
-  margin-top: 0.5rem;
   border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
+  font-size: 0.875rem;
 }
-.point__queue th,
-.point__queue td {
-  padding: 0.125rem 0.5rem;
+.point__queue th {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-weight: 600;
   text-align: left;
+  white-space: nowrap;
+}
+.point__queue td {
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+.point__queue tbody tr + tr td {
+  border-top: 1px solid var(--border);
 }
 </style>

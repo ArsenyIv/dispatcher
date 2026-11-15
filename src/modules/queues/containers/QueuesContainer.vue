@@ -38,9 +38,9 @@ function onDismiss(pointId: string): void {
 </script>
 
 <template>
-  <section class="queues" aria-labelledby="queues-title">
+  <section class="panel" aria-labelledby="queues-title">
     <h2 id="queues-title">Очереди</h2>
-    <p v-if="cards.length === 0">Пунктов пока нет</p>
+    <p v-if="cards.length === 0" class="muted">Пунктов пока нет</p>
     <div v-else class="queues__list">
       <PointCard
         v-for="card in cards"
@@ -63,8 +63,8 @@ function onDismiss(pointId: string): void {
 
 <style scoped>
 .queues__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
 }
 </style>

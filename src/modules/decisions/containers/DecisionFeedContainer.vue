@@ -51,9 +51,9 @@ function onDismiss(id: string): void {
 </script>
 
 <template>
-  <section class="feed" aria-labelledby="feed-title">
+  <section class="panel feed" aria-labelledby="feed-title">
     <h2 id="feed-title">Решения</h2>
-    <p v-if="rows.length === 0">Решений пока нет</p>
+    <p v-if="rows.length === 0" class="muted">Решений пока нет</p>
     <ul v-else class="feed__list">
       <DecisionItem
         v-for="row in rows"
@@ -76,11 +76,13 @@ function onDismiss(id: string): void {
 </template>
 
 <style scoped>
-.feed__list {
+.feed {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0;
-  margin: 0;
+  max-height: var(--feed-max, 36rem);
+}
+.feed__list {
+  min-height: 0;
+  overflow-y: auto;
 }
 </style>

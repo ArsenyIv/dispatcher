@@ -10,7 +10,7 @@ export const STALE_RING_WIDTH_PX = 1.5
 export const SELECT_RADIUS_PX = 9
 export const POINT_HALF_PX = 7
 export const GRID_STEP_M = 1000
-export const SELECTED_COLOR = '#1f2328'
+export const SELECTED_COLOR = '#141413'
 
 export const VEHICLE_STATES: readonly VehicleState[] = [
   'moving_loaded',
@@ -22,12 +22,12 @@ export const VEHICLE_STATES: readonly VehicleState[] = [
 ]
 
 export const STATE_COLORS: Record<VehicleState, string> = {
-  moving_loaded: '#1a7f37',
-  moving_empty: '#0969da',
-  queued: '#bf8700',
-  service: '#8250df',
-  idle: '#57606a',
-  offline: '#cf222e',
+  moving_loaded: '#788c5d',
+  moving_empty: '#4f85b8',
+  queued: '#b7791f',
+  service: '#8566a8',
+  idle: '#87867f',
+  offline: '#b3372d',
 }
 
 export const STATE_LABELS: Record<VehicleState, string> = {
@@ -143,12 +143,12 @@ export function drawStaticLayer(
   const bottom = toScreenY(proj, 0)
 
   ctx.clearRect(0, 0, proj.cssWidth, proj.cssHeight)
-  ctx.fillStyle = '#f6f8fa'
+  ctx.fillStyle = '#f0eee6'
   ctx.fillRect(0, 0, proj.cssWidth, proj.cssHeight)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(left, top, right - left, bottom - top)
 
-  ctx.strokeStyle = '#d8dee4'
+  ctx.strokeStyle = '#e8e6dc'
   ctx.lineWidth = 1
   ctx.beginPath()
   for (let x = GRID_STEP_M; x < WORLD_W_M; x += GRID_STEP_M) {
@@ -163,10 +163,10 @@ export function drawStaticLayer(
   }
   ctx.stroke()
 
-  ctx.strokeStyle = '#8c959f'
+  ctx.strokeStyle = '#b0aea5'
   ctx.strokeRect(left, top, right - left, bottom - top)
 
-  ctx.font = '12px system-ui, sans-serif'
+  ctx.font = '12px "Segoe UI", system-ui, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'bottom'
   ctx.lineJoin = 'round'
@@ -175,10 +175,10 @@ export function drawStaticLayer(
     const sx = toScreenX(proj, p.x_m)
     const sy = toScreenY(proj, p.y_m)
     if (p.mode === 'auto') {
-      ctx.fillStyle = '#1f2328'
+      ctx.fillStyle = '#141413'
       ctx.fillRect(sx - half, sy - half, half * 2, half * 2)
     } else {
-      ctx.strokeStyle = '#1f2328'
+      ctx.strokeStyle = '#141413'
       ctx.lineWidth = 3
       ctx.strokeRect(sx - half + 1.5, sy - half + 1.5, half * 2 - 3, half * 2 - 3)
     }
@@ -187,7 +187,7 @@ export function drawStaticLayer(
     ctx.lineWidth = 3
     ctx.strokeStyle = '#ffffff'
     ctx.strokeText(label, sx, ty)
-    ctx.fillStyle = '#1f2328'
+    ctx.fillStyle = '#141413'
     ctx.fillText(label, sx, ty)
   }
 }

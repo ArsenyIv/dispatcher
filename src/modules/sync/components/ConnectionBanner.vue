@@ -22,28 +22,32 @@ const LABELS: Record<ConnectionStatus, string> = {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 13rem;
   padding: 0.25rem 0.75rem;
   border: 1px solid currentColor;
   border-radius: 999px;
+  background: var(--surface);
   font-size: 0.875rem;
+  font-weight: 600;
 }
 .connection__mark {
+  flex: none;
   width: 0.6rem;
   height: 0.6rem;
   background: currentColor;
   border-radius: 50%;
 }
 .connection--live {
-  color: #1a7f37;
+  color: var(--ok);
 }
 .connection--reconnecting {
-  color: #9a6700;
+  color: var(--warn);
 }
 .connection--reconnecting .connection__mark {
   border-radius: 0;
 }
 .connection--stale {
-  color: #cf222e;
+  color: var(--danger);
 }
 .connection--stale .connection__mark {
   border-radius: 0;

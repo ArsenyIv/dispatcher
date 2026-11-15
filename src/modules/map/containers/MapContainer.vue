@@ -46,7 +46,7 @@ function onSelect(id: string | null): void {
 </script>
 
 <template>
-  <section aria-labelledby="map-title">
+  <section class="panel" aria-labelledby="map-title">
     <h2 id="map-title">Схема площадки</h2>
     <MapCanvas
       :points="points.list"

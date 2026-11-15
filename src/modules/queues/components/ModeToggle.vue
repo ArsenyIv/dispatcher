@@ -33,28 +33,25 @@ defineEmits<{ change: [mode: PointMode] }>()
 <style scoped>
 .mode {
   display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
 }
 .mode__btn {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid #57606a;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
+  min-width: 4.75rem;
+  border: 0;
+  border-radius: 0;
 }
-.mode__btn:first-child {
-  border-radius: 6px 0 0 6px;
-}
-.mode__btn:last-child {
-  border-left: 0;
-  border-radius: 0 6px 6px 0;
+.mode__btn + .mode__btn {
+  border-left: 1px solid var(--border-strong);
 }
 .mode__btn--active {
-  background: #1f2328;
-  color: #fff;
+  background: var(--text);
+  color: var(--bg);
   font-weight: 600;
+  opacity: 1;
 }
 .mode__btn:disabled:not(.mode__btn--active) {
-  opacity: 0.5;
-  cursor: progress;
+  opacity: 0.55;
 }
 </style>
