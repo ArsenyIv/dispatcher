@@ -1,7 +1,7 @@
 import type { Pinia } from 'pinia'
 import { commandService, configureCommands, useCommandsStore } from '@/modules/commands'
 import type { CommandState } from '@/modules/commands'
-import type { Decision, Me, Point, PointMode } from '@/modules/contract'
+import type { Decision, Me, Point, PointMode, Vehicle } from '@/modules/contract'
 import { useDecisionsStore } from '@/modules/decisions'
 import { usePointsStore, vehicleRegistry } from '@/modules/fleet'
 import { serverClock } from '@/modules/platform'
@@ -22,6 +22,7 @@ interface DebugApi {
   info(): SyncInfo
   log(): readonly LoggedDiagnostic[]
   vehicleCount(): number
+  vehicles(): Vehicle[]
   points(): Point[]
   decisions(): Decision[]
   me(): Me | null
@@ -99,6 +100,14 @@ export function bootstrap(pinia: Pinia): () => void {
       info: () => engine.info(),
       log: () => diagnostics.list(),
       vehicleCount: () => vehicleRegistry.size,
+            vehicles: () => {
+        const list: Vehicle[] = []
+        for (let i = 0; i < vehicleRegistry.size; i++) {
+          const entry = vehicleRegistry.at(i)
+          if (entry) list.push(entry.data)
+        }
+        return list
+      },
       points: () => Object.values(points.byId),
       decisions: () => decisions.items,
       me: () => session.me,
@@ -123,3 +132,4 @@ export function bootstrap(pinia: Pinia): () => void {
     clearInterval(pruneTimer)
   }
 }
+

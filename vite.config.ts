@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
+const mock = process.env.MOCK_URL ?? 'http://localhost:3001'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -17,9 +19,8 @@ export default defineConfig({
   },
     server: {
     proxy: {
-      '/api': 'http://localhost:3001',
-      '/debug': 'http://localhost:3001',
-      '/ws': { target: 'ws://localhost:3001', ws: true },
+      '/api': mock,
+      '/debug': mock,
+      '/ws': { target: mock.replace(/^http/, 'ws'), ws: true },
     },
-  },
-})
+  }})

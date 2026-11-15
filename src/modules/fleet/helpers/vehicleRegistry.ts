@@ -110,3 +110,4 @@ export class VehicleRegistry {
 }
 
 export const vehicleRegistry = new VehicleRegistry()
+

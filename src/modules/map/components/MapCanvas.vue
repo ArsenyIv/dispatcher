@@ -104,6 +104,39 @@ onBeforeUnmount(() => {
 })
 </script>
 
+<template>
+  <div class="map">
+    <div ref="frame" class="map__frame">
+      <canvas
+        ref="canvas"
+        class="map__canvas"
+        role="img"
+        aria-label="Схема площадки: пункты и машины"
+        @click="onClick"
+      ></canvas>
+    </div>
+
+    <ul class="legend" aria-label="Обозначения">
+      <li v-for="state in VEHICLE_STATES" :key="state" class="legend__item">
+        <span class="legend__dot" :style="{ background: STATE_COLORS[state] }"></span>
+        {{ STATE_LABELS[state] }}
+      </li>
+      <li class="legend__item"><span class="legend__ring"></span>Данные устарели</li>
+      <li class="legend__item"><span class="legend__square legend__square--auto"></span>Пункт, авто</li>
+      <li class="legend__item"><span class="legend__square legend__square--manual"></span>Пункт, ручной</li>
+      <li class="legend__item">Сетка: 1 км</li>
+    </ul>
+
+    <p v-if="selectedInfo" class="map__info">
+      <strong>{{ selectedInfo.name }}</strong>
+      · {{ selectedInfo.stateLabel }} · {{ selectedInfo.speedKmh }} км/ч · пункт: {{ selectedInfo.pointName }} ·
+      данные от {{ selectedInfo.lastSeen }}
+      <span v-if="selectedInfo.stale" class="map__stale">· данные устарели</span>
+    </p>
+    <p v-else class="map__hint">Нажмите на машину, чтобы увидеть подробности</p>
+  </div>
+</template>
+
 <style scoped>
 .map__frame {
   position: relative;

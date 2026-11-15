@@ -7,3 +7,4 @@ export function formatWait(seconds: number): string {
   const rest = total % 60
   return rest === 0 ? `${minutes} мин` : `${minutes} мин ${rest} с`
 }
+
