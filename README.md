@@ -1,73 +1,148 @@
-# dispatcher-ui
+# Экран диспетчера
 
-This template should help get you started developing with Vue 3 in Vite.
+Тестовое задание: экран диспетчера на Vue 3 + TypeScript + Pinia, заглушка сервера, автоматические проверки правил кода и документы. Экран рассчитан на работу всю смену (до 12 часов): он не должен расходиться с сервером при потере, повторе и перестановке сообщений, обрывах связи и медленном сервере.
 
-## Recommended IDE Setup
+## Быстрый старт
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+Нужны: Node.js 22.18+ (или 24.12+), [pnpm](https://pnpm.io), make.
 
 ```sh
-npm install
+pnpm install
+
+# окно 1: заглушка сервера (http://localhost:3001)
+make mock
+
+# окно 2: экран (http://localhost:5173)
+make dev
 ```
 
-### Compile and Hot-Reload for Development
+На Windows `make` ставится отдельно: `winget install ezwinports.make` (после установки перезапустите терминал). Make только вызывает скрипты pnpm, поэтому любую команду можно запустить и без него: `pnpm run <имя>`.
+
+## Команды
+
+| Команда | Что делает |
+| --- | --- |
+| `make dev` | Экран в режиме разработки. Запросы `/api`, `/debug` и `/ws` проксируются на заглушку |
+| `make mock` | Заглушка сервера |
+| `make check` | Типы (`vue-tsc`), линтер, границы модулей, суффикс `Mutator`. Любое нарушение — ошибка |
+| `make test` | Модульные тесты (Vitest, 105 тестов) |
+| `make e2e` | Пока не реализована, см. «Что не сделано» |
+| `make perf` | Пока не реализована, см. «Что не сделано» |
+
+## Заглушка сервера
+
+150 машин, 6 пунктов, новое решение каждые 5–15 секунд, решение исполняется через 60 секунд после создания. Параметры задаются переменными окружения:
+
+| Переменная | Значение |
+| --- | --- |
+| `PORT` | Порт (по умолчанию 3001) |
+| `LOAD` | Число машин (по умолчанию 150, для нагрузки 1000) |
+| `FAULTS` | Список сбоев через запятую: `drop` (теряет сообщения), `dup` (дублирует), `reorder` (переставляет), `reset` (раз в 2 минуты рвёт соединение и отвечает `reset`), `slow` (задержка HTTP 3 с; у каждой нечётной команды ответ первой попытки теряется, а сама команда выполняется), `stale` (каждая десятая машина перестаёт обновляться) |
+| `ROLE` | `dispatcher` (по умолчанию) или `observer` (команды получают 403) |
+| `SLOW_MS` | Задержка для `slow`, мс (по умолчанию 3000) |
+| `FAULT_RATE` | Примерно сколько сбоев каждого вида в секунду (по умолчанию 0,2) |
 
 ```sh
-npm run dev
+# bash
+FAULTS=drop,dup,reorder make mock
+LOAD=1000 make mock
+ROLE=observer make mock
 ```
 
-### Type-Check, Compile and Minify for Production
+```powershell
+# PowerShell
+$env:FAULTS = "drop,dup,reorder"; make mock
+```
+
+Для проверок есть истинное состояние сервера: `GET /debug/state` (машины, пункты, решения, а также по каждому ключу идемпотентности число запросов `requests` и выполнений `executions`). Для сценариев с конфликтом есть `POST /debug/execute/{decision_id}`: исполнить ожидающее решение немедленно.
+
+Экран можно запустить на другой заглушке, указав её адрес:
 
 ```sh
-npm run build
+MOCK_URL=http://localhost:3010 make dev
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
+```powershell
+$env:MOCK_URL = "http://localhost:3010"; make dev
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+В режиме разработки (`make dev`) в консоли браузера доступен объект `window.__dispatcher` (состояние синхронизации, машины, пункты, решения, журнал событий, отправка команд в обход интерфейса). Вместе с `/debug/state` он позволяет сверить экран с сервером. В сборке этого объекта нет.
 
-```sh
-# Install browsers for the first run
-npx playwright install
+## Что сделано
 
-# When testing on CI, must build the project first
-npm run build
+Экран: схема площадки (Canvas), очереди пунктов с переключателем «Авто / Ручной», лента решений с обратным отсчётом и кнопкой «Отменить», индикатор связи. Адаптивная раскладка, одна светлая тема, без анимаций (кроме движения машин на схеме).
 
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
+Как закрыты девять требований задания:
 
-### Lint with [ESLint](https://eslint.org/)
+| № | Требование | Где и как |
+| --- | --- | --- |
+| 1 | Показатели приходят с сервера | Очередь, ожидание и выигрыш только показываются (`queueRows.ts`, `DecisionItem.vue`). Экран форматирует время и секунды, но ничего не считает |
+| 2 | Потеря, повтор, перестановка, reset | `sync`: порядок по `seq`, буфер, переподключение с `since`, heartbeat с номером сервера, новый снимок при `reset` |
+| 3 | Команда выполняется один раз | `commands`: один `Idempotency-Key` и одна версия `If-Match` на намерение, до трёх автоповторов с тем же ключом, честный статус «исход неизвестен» |
+| 4 | Состояние из ответа сервера | Ответ 200 и тело 409 применяются в хранилище; оптимистичных обновлений нет |
+| 5 | Наблюдатель | Кнопок нет, ответ 403 обрабатывается («Нет прав на это действие») |
+| 6 | Устаревшие машины | Более 30 секунд без данных по времени сервера: на схеме кольцо вместо точки |
+| 7 | Часовой пояс площадки | `Intl.DateTimeFormat` с поясом из `/api/me`, пояс браузера не используется |
+| 8 | Нет внешних запросов | Шрифты системные, значок страницы пустой, подложки нет. В собранном `dist` нет ни одного внешнего адреса |
+| 9 | 12 часов без роста памяти | Все растущие структуры ограничены (буфер порядка, окно решений в час, журнал событий на 200 записей, состояния команд удаляются через 10 секунд) |
 
-```sh
-npm run lint
-```
+Подробности и обоснование решений: [DESIGN.md](DESIGN.md).
+
+## Как устроен код
+
+Код лежит в `src/modules/<имя>`. Внутри модуля: `index.ts` (единственная публичная точка), `api`, `helpers`, `utils`, `store`, `containers`, `components`. Сборка модулей (приёмник сообщений, запуск) находится в `src/app`.
+
+Правила и то, что их проверяет (`make check`):
+
+| Правило | Проверка |
+| --- | --- |
+| Модули импортируют друг друга только через `index.ts`, циклов нет | `dependency-cruiser` (`.dependency-cruiser.cjs`) |
+| Контейнеры (`*Container.vue`) делают запросы и работают с состоянием, компоненты только показывают `props` и шлют `emit` | `dependency-cruiser` и правила ESLint для каталога `components` |
+| HTTP и WebSocket только в слое `api`, через единый клиент `platform` | ESLint: `no-restricted-globals`, `no-restricted-properties`, `no-restricted-imports` |
+| Pinia только для общего долгоживущего состояния; функции, меняющие store, называются с суффиксом `Mutator` | `tools/checkMutators.mjs` |
+| Нельзя обходить проверки | ESLint: `noInlineConfig` (запрещает `eslint-disable`) и `ban-ts-comment` (запрещает `@ts-ignore`) |
+
+Проверка работает, если внести нарушение вручную, например:
+
+- `import '../../sync/helpers/syncEngine'` в файл другого модуля: правило `modules-only-via-index`;
+- `import '@/modules/sync/helpers/syncEngine'` в `src/app/bootstrap.ts`: `outside-only-via-index`;
+- `fetch('/x')` в любом файле вне `api`: `no-restricted-globals`;
+- `import { usePointsStore } from '@/modules/fleet'` в компонент: `no-restricted-imports`;
+- `export function addDecision() {}` в `store`: «функция должна называться ...Mutator».
+
+## Что не сделано и почему
+
+- **`make e2e` и `make perf`** не реализованы. Файлы `e2e/*` и `perf/run.mjs` пока пустые, конфигурация `playwright.config.ts` остаётся шаблонной и без настройки не запустится. Сценарии сбоев проверялись вручную через заглушку и `/debug/state`; измерения производительности (10 минут при 1000 машин) и прогон на 12 часов автоматически не выполнялись.
+- **Выбор машины с клавиатуры** на схеме не сделан (выбор кликом). Сведения о машинах дублируют лента и очереди.
+- **Масштабирование и панорамирование схемы**, офлайн-режим, аутентификация: в задании не требовались.
+- **Имена машин в очередях**: берутся из реестра, поэтому для машины, которой ещё нет в реестре, временно показывается её идентификатор.
+- **Web Worker**, пространственный индекс для выбора машин, виртуализация ленты: при заданной нагрузке не нужны (см. DESIGN.md).
+
+## Время
+
+Затрачено: **[укажите, сколько часов заняла работа]**.
+
+## Работа с ИИ
+
+**Инструмент.** Claude (Anthropic) в веб-чате. Кодовый агент (Claude Code, Cursor и подобные) не использовался: код и документы генерировались в диалоге и переносились в проект вручную, команды запускались вручную, результаты проверок отправлялись обратно в диалог.
+
+**Что делал ИИ.** Предложил три варианта архитектуры и рекомендовал вариант с ядром синхронизации на чистом TypeScript, хранением машин вне реактивности Vue и отрисовкой на Canvas; написал код модулей, заглушки сервера, правил проверок и тестов; писал черновики документов.
+
+**Что делал я.** Согласовывал решения, создавал структуру проекта, устанавливал окружение, запускал `make check` и `make test`, присылал выводы и ошибки, проверял результат в браузере, выбирал оформление.
+
+**Что не даёт ИИ нарушить правила.** `make check` (границы модулей, запрет сетевых вызовов вне `api`, разделение контейнеров и компонентов, суффикс `Mutator`, запрет `eslint-disable` и `@ts-ignore`), типизация и модульные тесты. Для агентов, которые будут работать в репозитории, правила записаны в [AGENTS.md](AGENTS.md).
+
+**Ошибки ИИ, которые были пойманы.**
+
+1. В первой версии `Makefile` использовался `.RECIPEPREFIX = >`; при копировании из чата знаки `>` терялись, и `make` падал. Запись заменена на форму `цель: ; команда`.
+2. Блок `scripts` из чата попал в `package.json` с изогнутыми кавычками, и JSON стал невалидным. Исправлено заменой на прямые кавычки.
+3. ИИ решил, что в `package.json` потерялся скрипт `test`. Запуск `pnpm run test` показал, что скрипт на месте; вывод был неверным.
+4. Диагностика ошибки `npm install` (`edgesOut`) сначала указывала на OneDrive. Настоящей причиной оказался лишний `package-lock.json` в родительской папке; установка переведена на pnpm.
+5. Тест автомата команд не проходил проверку типов (`tick` возвращал не тот тип): поймано `vue-tsc`.
+6. В `MapCanvas.vue` при правке пропал блок `<template>`: ESLint сообщил о неиспользуемых переменных (`make check` стал красным), файл восстановлен.
+
+## Документы
+
+- [DESIGN.md](DESIGN.md): архитектура и обоснование решений.
+- [AGENTS.md](AGENTS.md): инструкция для ИИ-агентов, работающих в репозитории.
+- [PLAN.md](PLAN.md): план замены старых экранов диспетчера за 10 недель.
